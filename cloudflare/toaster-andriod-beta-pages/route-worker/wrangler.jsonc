@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../node_modules/wrangler/config-schema.json",
+  "name": "toaster-andriod-beta-path",
+  "main": "src/index.js",
+  "compatibility_date": "2026-05-01",
+  "vars": {
+    "PAGES_HOST": "toaster-andriod-beta.pages.dev",
+    "BASE_PATH": "/toaster-andriod-beta"
+  },
+  "routes": [
+    {
+      "pattern": "toaster.cloustan.org/toaster-andriod-beta*",
+      "zone_name": "cloustan.org"
+    }
+  ]
+}

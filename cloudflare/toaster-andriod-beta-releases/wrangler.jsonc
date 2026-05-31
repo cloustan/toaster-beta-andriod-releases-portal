@@ -1,0 +1,20 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "toaster-andriod-beta-releases",
+  "main": "src/index.js",
+  "compatibility_date": "2026-05-01",
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "assets.toaster.andriod.beta.cloustan.org/*",
+      "zone_name": "cloustan.org"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BETA_APK_BUCKET",
+      "bucket_name": "toaster-android-beta",
+      "remote": true
+    }
+  ]
+}

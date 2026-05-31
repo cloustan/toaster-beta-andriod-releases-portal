@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/toaster-andriod-beta/">
+    <script>(function(){var s=document.createElement('style');s.id='toaster-tap-highlight-off';s.textContent='*{-webkit-tap-highlight-color:transparent;}';document.head.appendChild(s);})();</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Toaster Beta APK</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cal+Sans&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="img/favicon.png">
+    <link rel="apple-touch-icon" href="img/favicon.png">
+    <meta name="theme-color" content="#0055ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Toaster">
+    <script>
+      (function(){
+        try{
+          var base = 'img/';
+          var second = base + 'toaster-pill-logo.png?v=' + Date.now();
+          var first  = base + 'toaster-logo-pill.png?v=' + Date.now();
+          var probe = new Image();
+          probe.onload = function(){ window.BRAND_LOGO_URL = second; };
+          probe.onerror = function(){ window.BRAND_LOGO_URL = first; };
+          probe.src = second;
+        }catch(e){}
+      })();
+    </script>
+    <script src="brand-nav.js?v=20260329-nav-stable" defer></script>
+    <script>
+      (function () {
+        var DISABLE_ANDROID_REQUIREMENT = false;
+        var params = new URLSearchParams(window.location.search);
+        var urlBypass = params.get('allow') === '1';
+        var bypass = DISABLE_ANDROID_REQUIREMENT || urlBypass;
+        var ua = navigator.userAgent || '';
+        var isAndroid = /Android/i.test(ua);
+        var isDesktopViewport = window.matchMedia && window.matchMedia('(min-width: 769px)').matches;
+        var isDesktopPointer = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+        var blocked = !bypass && (!isAndroid || (isDesktopViewport && isDesktopPointer));
+        document.documentElement.classList.add(blocked ? 'platform-blocked' : 'is-android');
+      })();
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+
+        .app-nav-dock,
+        .brand-fixed-left,
+        .brand-fallback-bottom {
+            display: none !important;
+        }
+
+        html {
+            min-height: 100%;
+            background: linear-gradient(180deg, #0055ff 0%, #b3ccff 100%);
+        }
+        
+        body {
+            font-family: "Cal Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #0055ff 0%, #b3ccff 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overscroll-behavior: none;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            animation: ambientDrift 14s ease-in-out infinite alternate;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+            animation: fadeUpIn 0.6s ease both;
+        }
+
+        .logo {
+            width: 280px;
+            height: auto;
+            margin: 0 auto 20px;
+            display: block;
+            filter: drop-shadow(0 4px 16px rgba(255, 255, 255, 0.3));
+            animation: logoFloat 5.5s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: clamp(28px, 6vw, 42px);
+            font-weight: 700;
+            margin: 0 0 12px;
+            letter-spacing: -1px;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 680px;
+            height: 6px;
+            background: rgba(255,255,255,.15);
+            border-radius: 9999px;
+            margin: 24px 0 32px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+            animation: fadeUpIn 0.7s ease both;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff, rgba(255, 255, 255, 0.8));
+            border-radius: 9999px;
+            transition: width 0.4s ease;
+            width: 0%;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px) saturate(120%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 16px;
+            max-width: 680px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25),
+                        0 0 60px rgba(255, 255, 255, 0.15);
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 8px 32px rgba(255, 255, 255, 0.2));
+            opacity: 0.5;
+            pointer-events: none;
+            transform: translateY(24px) scale(0.985);
+            transition: opacity 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.38s ease;
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            border-radius: 24px 24px 0 0;
+            pointer-events: none;
+        }
+
+        .step-card.active {
+            opacity: 1;
+            pointer-events: auto;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25),
+                        0 0 80px rgba(255, 255, 255, 0.25);
+            transform: translateY(0) scale(1);
+            animation: cardEnter 0.42s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+        }
+
+        .step-card.completed {
+            opacity: 0.6;
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(0) scale(0.992);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+            color: #ffffff;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        .step-card.completed .step-number {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .step-card.completed .step-number::after {
+            content: '✓';
+            color: #ffffff;
+        }
+
+        .step-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .step-description {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .graphic-slot {
+            width: 100%;
+            min-height: 210px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.14);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            text-align: center;
+            padding: 16px;
+        }
+
+        .hero-step {
+            text-align: center;
+        }
+
+        .hero-step .mockup-stage {
+            margin-top: auto;
+            margin-bottom: 0;
+        }
+
+        .hero-step .hero-copy,
+        .hero-step .btn,
+        .hero-step .mobile-nav {
+            transition: opacity 0.28s ease, transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .hero-step.is-shifting-to-ai .hero-copy,
+        .hero-step.is-shifting-to-ai .btn,
+        .hero-step.is-shifting-to-ai .mobile-nav {
+            opacity: 0;
+            transform: translateY(-18px);
+        }
+
+        .hero-step.intro-settle #hero-mockup-image {
+            animation: heroImageIntroSettle 560ms cubic-bezier(0.22, 0.9, 0.2, 1) forwards;
+        }
+
+        .hero-step.is-shifting-to-ai #hero-mockup-image {
+            animation: heroImageSettle 520ms cubic-bezier(0.22, 0.9, 0.2, 1) forwards;
+        }
+
+        .hero-step .step-header,
+        .feature-step .step-header,
+        .courses-step .step-header,
+        .cta-step .step-header {
+            margin-bottom: 20px;
+        }
+
+        .hero-copy {
+            max-width: 420px;
+            margin: 0 auto 72px;
+        }
+
+        .hero-copy,
+        .feature-title,
+        .step-title,
+        .step-description {
+            will-change: transform, opacity;
+        }
+
+        .hero-title {
+            margin: 0;
+            font-size: clamp(2.6rem, 8vw, 4.25rem);
+            line-height: 1.02;
+            letter-spacing: -0.035em;
+            font-weight: 900;
+            color: #ffffff;
+            text-wrap: balance;
+        }
+
+        .mockup-stage {
+            width: min(100%, 420px);
+            margin: 0 auto 20px;
+        }
+
+        .mockup-window.top {
+            width: min(100%, 400px);
+            height: 420px;
+            background: transparent;
+            box-shadow: none;
+            overflow: visible;
+        }
+
+        .mockup-window.top > div {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        #hero-mockup-image {
+            width: min(100%, 520px);
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 1214 / 2504;
+            object-fit: contain;
+        }
+
+        .mockup-transition-layer {
+            display: none;
+        }
+
+        .mockup-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.28));
+        }
+
+        .mockup-window {
+            width: min(100%, 400px);
+            height: 420px;
+            margin: 0 auto 20px;
+            border-radius: 36px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .feature-step .mockup-window {
+            height: auto;
+            margin-bottom: 24px;
+            overflow: visible;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .feature-step .mockup-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .hero-step.active .mockup-window {
+            animation: simpleImageSlideUp 0.38s ease-out both;
+        }
+
+        .feature-step.active .mockup-window {
+            animation: simpleImageSlideDown 0.38s ease-out both;
+        }
+
+        .feature-title {
+            margin: 0 0 20px;
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1;
+            letter-spacing: -0.05em;
+            font-weight: 900;
+            color: #ffffff;
+        }
+
+        .courses-step .graphic-slot {
+            min-height: 190px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08)),
+                #0f61ff;
+            align-items: flex-start;
+            justify-content: flex-start;
+            text-align: left;
+        }
+
+        .cloud-ecosystem-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 20px;
+            object-fit: contain;
+            box-shadow: 0 14px 26px rgba(8, 52, 165, 0.34);
+        }
+
+        #graphic-slot-stats {
+            width: 100%;
+            max-width: 460px;
+            min-height: 220px;
+            aspect-ratio: auto;
+            padding: 10px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08)),
+                #0f61ff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .course-preview {
+            width: 100%;
+            display: grid;
+            gap: 12px;
+            color: #ffffff;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .course-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .course-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .course-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.12);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .course-row span:last-child {
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .cta-copy {
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            width: 100%;
+            min-height: 82px;
+            padding: 18px 24px;
+            background: rgba(47, 106, 243, 0.62);
+            color: #ffffff;
+            border: 1.2px solid rgba(255, 255, 255, 0.42);
+            border-radius: 999px;
+            font-size: 24px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            font-family: inherit;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: transform 180ms ease, background 180ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: rgba(57, 114, 247, 0.74);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,.15);
+            color: #ffffff;
+        }
+
+        .btn-secondary::before {
+            display: none;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255,255,255,.25);
+        }
+
+        @keyframes ambientDrift {
+            0% {
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+            100% {
+                transform: translate3d(0, -10px, 0) scale(1.04);
+            }
+        }
+
+        @keyframes fadeUpIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes cardEnter {
+            0% {
+                opacity: 0;
+                transform: translateY(34px) scale(0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes mockupSettleIn {
+            0% {
+                opacity: 0.88;
+                transform: scale(1.015);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes stagedFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes simpleImageSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(26px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes simpleImageSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-26px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes stepTextTransitionIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+                filter: blur(2px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes badgePop {
+            0% {
+                transform: scale(0.35);
+                opacity: 0;
+            }
+            55% {
+                transform: scale(1.12);
+                opacity: 1;
+            }
+            72% {
+                transform: scale(0.94);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes badgeGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+            }
+            50% {
+                filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.45));
+            }
+        }
+
+        @keyframes statusTitleIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes installRowIn {
+            from {
+                opacity: 0;
+                transform: translateY(22px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes chevronNudge {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(4px);
+            }
+        }
+
+        .step-card.active .hero-copy {
+            animation: stepTextTransitionIn 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
+        }
+
+        .step-card.active .feature-title,
+        .step-card.active .step-title {
+            animation: stepTextTransitionIn 460ms cubic-bezier(0.22, 1, 0.36, 1) 110ms both;
+        }
+
+        .step-card.active .step-description {
+            animation: stepTextTransitionIn 500ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both;
+        }
+
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: linear-gradient(180deg, rgba(179, 204, 255, 0) 0%, rgba(179, 204, 255, 0.7) 42%, rgba(179, 204, 255, 0.96) 100%);
+            display: none !important;
+            gap: 12px;
+            align-items: center;
+            z-index: 50;
+            border-top: 0;
+            border-radius: 18px;
+        }
+
+        @media (max-width: 767px) {
+            .brand-fixed-top-center {
+                top: calc(env(safe-area-inset-top, 0px) + 28px) !important;
+            }
+
+            .brand-fixed-top-center img {
+                height: 48px !important;
+                max-width: 70vw !important;
+            }
+
+            .mobile-nav {
+                display: flex !important;
+            }
+        }
+
+        html.is-android {
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        html.is-android body {
+            padding: 0;
+            background: linear-gradient(180deg, #0055ff 0%, #b3ccff 100%);
+        }
+
+        html.is-android .beta-apk-app {
+            min-height: 100dvh;
+            justify-content: flex-start;
+            padding: 0;
+        }
+
+        html.is-android .beta-apk-app.container,
+        html.is-android .container.beta-apk-app {
+            padding: 0;
+            display: block;
+        }
+
+        html.is-android .beta-apk-app.container::before,
+        html.is-android .container.beta-apk-app::before {
+            display: none;
+        }
+
+        html.is-android .beta-apk-app header,
+        html.is-android .container.beta-apk-app header {
+            display: none;
+        }
+
+        html.is-android .beta-apk-app .progress-bar,
+        html.is-android .container.beta-apk-app .progress-bar {
+            display: none;
+        }
+
+        html.is-android .beta-apk-app .step-card,
+        html.is-android .container.beta-apk-app .step-card {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: 0;
+            max-width: none;
+            border-radius: 0;
+            border: none;
+            padding: 156px 24px 100px;
+            background: linear-gradient(180deg, #0055ff 0%, #b3ccff 100%);
+            backdrop-filter: none;
+            box-shadow: none;
+            filter: none;
+            display: none !important;
+            flex-direction: column;
+            overflow-y: auto;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        html.is-android .beta-apk-app .step-card::before,
+        html.is-android .container.beta-apk-app .step-card::before {
+            display: none;
+        }
+
+        html.is-android .beta-apk-app .step-card.active,
+        html.is-android .container.beta-apk-app .step-card.active {
+            display: flex !important;
+            box-shadow: none;
+            animation: mobileStepEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        html.is-android .beta-apk-app .step-card.completed,
+        html.is-android .container.beta-apk-app .step-card.completed {
+            display: none !important;
+        }
+
+        html.is-android .beta-apk-app .step-header,
+        html.is-android .container.beta-apk-app .step-header {
+            position: relative;
+            margin-bottom: 32px;
+        }
+
+        html.is-android .beta-apk-app .step-number,
+        html.is-android .container.beta-apk-app .step-number {
+            display: none;
+        }
+
+        html.is-android .beta-apk-app .step-title,
+        html.is-android .container.beta-apk-app .step-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffffff;
+            margin-top: 20px;
+            margin-bottom: 24px;
+        }
+
+        html.is-android .beta-apk-app .step-title::after,
+        html.is-android .container.beta-apk-app .step-title::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 9999px;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        html.is-android .beta-apk-app .step-description,
+        html.is-android .container.beta-apk-app .step-description {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 16px;
+            margin-bottom: 32px;
+            margin-top: 0;
+        }
+
+        html.is-android .beta-apk-app .graphic-slot,
+        html.is-android .container.beta-apk-app .graphic-slot {
+            min-height: 240px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        html.is-android .beta-apk-app .hero-copy,
+        html.is-android .container.beta-apk-app .hero-copy {
+            margin-bottom: 18px;
+            max-width: 100%;
+        }
+
+        html.is-android .beta-apk-app .hero-title,
+        html.is-android .container.beta-apk-app .hero-title {
+            font-size: clamp(3rem, 12vw, 4.4rem);
+            line-height: 1.04;
+            text-align: center;
+            text-wrap: balance;
+        }
+
+        html.is-android .beta-apk-app .mockup-stage,
+        html.is-android .container.beta-apk-app .mockup-stage {
+            width: 100%;
+            max-width: 360px;
+        }
+
+        html.is-android .beta-apk-app .hero-step .mockup-stage,
+        html.is-android .container.beta-apk-app .hero-step .mockup-stage {
+            width: calc(100% + 96px);
+            max-width: none;
+            margin: 0 -48px -148px;
+            margin-top: auto;
+            margin-bottom: -148px;
+        }
+
+        html.is-android .beta-apk-app .mockup-window,
+        html.is-android .container.beta-apk-app .mockup-window {
+            width: 100%;
+            height: 320px;
+            border-radius: 32px;
+        }
+
+        html.is-android .beta-apk-app .mockup-window.top,
+        html.is-android .container.beta-apk-app .mockup-window.top {
+            width: 100%;
+            height: auto;
+            background: transparent;
+            box-shadow: none;
+            overflow: visible;
+        }
+
+        html.is-android .beta-apk-app .hero-step .mockup-window.top > div,
+        html.is-android .container.beta-apk-app .hero-step .mockup-window.top > div {
+            align-items: flex-start;
+        }
+
+        html.is-android .beta-apk-app .hero-step #hero-mockup-image,
+        html.is-android .container.beta-apk-app .hero-step #hero-mockup-image {
+            width: min(100%, 520px);
+            max-width: 520px;
+            height: auto;
+            aspect-ratio: 1214 / 2504;
+            object-fit: contain;
+            transform: translateY(42px) scale(1.08);
+            transform-origin: top center;
+        }
+
+        html.is-android .beta-apk-app .feature-step .mockup-window,
+        html.is-android .container.beta-apk-app .feature-step .mockup-window {
+            height: auto;
+            margin-bottom: 18px;
+        }
+
+        html.is-android .beta-apk-app .feature-step .mockup-image,
+        html.is-android .container.beta-apk-app .feature-step .mockup-image {
+            width: 86%;
+            margin: 0 auto;
+        }
+
+        html.is-android .beta-apk-app .mockup-transition-layer,
+        html.is-android .container.beta-apk-app .mockup-transition-layer {
+            border-radius: 32px;
+        }
+
+        html.is-android .beta-apk-app .feature-title,
+        html.is-android .container.beta-apk-app .feature-title {
+            font-size: clamp(2rem, 10vw, 3rem);
+        }
+
+        html.is-android .beta-apk-app .mobile-nav,
+        html.is-android .container.beta-apk-app .mobile-nav {
+            display: flex !important;
+        }
+
+        html.is-android .beta-apk-app .mobile-back,
+        html.is-android .container.beta-apk-app .mobile-back {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+
+        html.is-android .beta-apk-app .mobile-back svg,
+        html.is-android .container.beta-apk-app .mobile-back svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 3.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        html.is-android .beta-apk-app .mobile-next,
+        html.is-android .container.beta-apk-app .mobile-next {
+            flex: 1;
+            min-height: 82px;
+            padding: 16px 20px;
+            background: rgba(47, 106, 243, 0.62);
+            color: #ffffff;
+            border: 1.2px solid rgba(255, 255, 255, 0.42);
+            border-radius: 999px;
+            font-size: 24px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            font-family: inherit;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        html.is-android .beta-apk-app .hero-step,
+        html.is-android .container.beta-apk-app .hero-step {
+            overflow: hidden;
+        }
+
+        html.is-android .beta-apk-app .hero-step .mobile-nav,
+        html.is-android .container.beta-apk-app .hero-step .mobile-nav {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+            padding: 0;
+            border-top: 0;
+            background: transparent;
+        }
+
+        html.is-android .beta-apk-app .hero-step .mobile-back,
+        html.is-android .container.beta-apk-app .hero-step .mobile-back {
+            display: none;
+        }
+
+        html.is-android .beta-apk-app .hero-step .mobile-next,
+        html.is-android .container.beta-apk-app .hero-step .mobile-next {
+            min-height: 86px;
+            letter-spacing: -0.02em;
+            text-transform: lowercase;
+            background: rgba(67, 124, 240, 0.96);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 18px 34px rgba(8, 52, 165, 0.45);
+        }
+
+        html.is-android .beta-apk-app .btn,
+        html.is-android .container.beta-apk-app .btn {
+            display: none;
+        }
+
+        @keyframes mobileStepEnter {
+            from {
+                opacity: 0;
+                transform: translateX(26px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes heroImageIntroSettle {
+            0% {
+                transform: translateY(42px) scale(1.08);
+            }
+            100% {
+                transform: translateY(6px) scale(0.84);
+            }
+        }
+
+        @keyframes heroImageSettle {
+            0% {
+                transform: translateY(6px) scale(0.84);
+            }
+            100% {
+                transform: translateY(-8px) scale(0.76);
+            }
+        }
+
+        .install-screen-content {
+            width: 100%;
+            max-width: 340px;
+            margin: 0 auto 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .install-screen-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .install-screen-row.is-highlight {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .install-screen-row__lead {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .install-screen-row__lead img {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+        }
+
+        .install-screen-row__lead strong {
+            display: block;
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .install-screen-row__lead span {
+            display: block;
+            margin-top: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .install-screen-chevron {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .install-screen-chevron::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 54%;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid #ffffff;
+            border-bottom: 2px solid #ffffff;
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .fake-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .fake-toggle {
+            flex-shrink: 0;
+            width: 52px;
+            height: 30px;
+            border-radius: 999px;
+            background: #c8d4ef;
+            position: relative;
+            transition: background 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .fake-toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(11, 47, 143, 0.2);
+            transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .fake-toggle.is-on {
+            background: #0055ff;
+        }
+
+        .fake-toggle.is-on::after {
+            transform: translateX(22px);
+        }
+
+        .download-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 0 0 20px;
+        }
+
+        .download-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .download-status {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            margin: 0 0 16px;
+            min-height: 1.4em;
+        }
+
+        .download-status.error {
+            color: #ffe0e0;
+        }
+
+        .install-screen-content .apk-history {
+            width: 100%;
+            margin-top: 0;
+        }
+
+        .apk-history h3 {
+            margin: 0 0 12px;
+            font-size: 15px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: left;
+        }
+
+        .apk-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: background 0.18s ease;
+        }
+
+        .apk-row:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .apk-row span:last-child {
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        html.platform-blocked,
+        html.platform-blocked body {
+            overflow: hidden;
+        }
+
+        .platform-error {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin: 0;
+            padding: 24px;
+            text-align: center;
+            background: linear-gradient(180deg, #0055ff 0%, #b3ccff 100%);
+        }
+
+        html.platform-blocked .platform-error {
+            display: flex;
+        }
+
+        html.platform-blocked .beta-apk-app {
+            display: none !important;
+        }
+
+        .platform-error-title {
+            margin: 0;
+            font-size: 23.4px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .platform-error-badge {
+            display: block;
+            width: 72px;
+            height: 72px;
+            color: #ff3b30;
+            flex-shrink: 0;
+        }
+
+        html.platform-blocked .platform-error-title {
+            animation: statusTitleIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+        }
+
+        html.platform-blocked .platform-error-badge {
+            animation: badgePop 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both,
+                       badgeGlow 2.4s ease-in-out 0.95s infinite;
+        }
+
+        .platform-status {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin: auto 0;
+            padding: 24px;
+            text-align: center;
+            flex: 1;
+            width: 100%;
+        }
+
+        .platform-status-title {
+            margin: 0;
+            font-size: 23.4px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .platform-status-badge {
+            display: block;
+            width: 72px;
+            height: 72px;
+            flex-shrink: 0;
+        }
+
+        .platform-status-badge--success {
+            color: #34c759;
+        }
+
+        .platform-status-badge--warn {
+            color: #ffcc00;
+        }
+
+        .step-card.active .platform-status-title {
+            animation: statusTitleIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both;
+        }
+
+        .step-card.active .platform-status-badge {
+            animation: badgePop 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both,
+                       badgeGlow 2.6s ease-in-out 1s infinite;
+        }
+
+        .step-card.active .platform-status-subtitle {
+            animation: statusTitleIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.34s both;
+        }
+
+        .step-card.active .install-screen-content .fake-toggle-row:nth-child(1) {
+            animation: installRowIn 0.48s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+        }
+
+        .step-card.active .install-screen-content .fake-toggle-row:nth-child(2) {
+            animation: installRowIn 0.48s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both;
+        }
+
+        .step-card.active .install-screen-content .install-screen-row {
+            animation: installRowIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both;
+        }
+
+        .step-card.active .install-screen-chevron {
+            animation: chevronNudge 1.4s ease-in-out 0.55s infinite;
+        }
+
+        .step-card.active .install-screen-row__lead img {
+            animation: badgePop 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+        }
+
+        .platform-status-subtitle {
+            margin: -6px 0 0;
+            max-width: 280px;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.45;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .platform-status-subtitle a {
+            color: #ffffff;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            position: relative;
+            z-index: 2;
+            pointer-events: auto;
+            cursor: pointer;
+            padding: 4px 2px;
+            margin: -4px -2px;
+        }
+
+        #step-4 .platform-status {
+            position: relative;
+            z-index: 1;
+            pointer-events: auto;
+        }
+
+        #step-4.active,
+        #step-5.active {
+            justify-content: center;
+        }
+
+        html.is-android #step-4.active,
+        html.is-android #step-5.active {
+            padding-top: 24px;
+            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 100px);
+        }
+
+        #step-5 .apk-history {
+            width: 100%;
+            max-width: 340px;
+            margin: 0 auto 16px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+<body data-brand-logo="img/toaster-pill-logo.png">
+    <div class="platform-error" id="platform-error" role="alert" aria-live="assertive">
+        <p class="platform-error-title">Android only</p>
+        <svg class="platform-error-badge" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>
+    </div>
+
+    <div class="container beta-apk-app">
+        <header>
+            <img src="img/toaster-pill-logo.png" alt="Toaster Logo" class="logo">
+            <h1>Toaster Beta for Android</h1>
+            <p class="subtitle">Download the latest beta, then follow the install steps below.</p>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="step-card active hero-step" id="step-1">
+            <div class="hero-copy">
+                <h2 class="hero-title">Get Toaster Beta</h2>
+            </div>
+            <div class="mockup-stage">
+                <div class="mockup-window top" id="hero-mockup-window">
+                    <div>
+                        <img class="mockup-image" id="hero-mockup-image" src="img/toaster-onboarding.png" alt="Toaster app preview">
+                    </div>
+                </div>
+            </div>
+            <div class="download-meta" id="download-meta" aria-live="polite"></div>
+            <p class="download-status" id="download-status">Loading latest beta build…</p>
+            <button class="btn" id="btn-download" type="button" disabled>Download APK</button>
+            <div class="mobile-nav">
+                <button class="mobile-next" id="mobile-btn-download" type="button" disabled>Download APK</button>
+            </div>
+        </div>
+
+        <div class="step-card install-step" id="step-2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <h2 class="step-title">Allow this browser to install</h2>
+            </div>
+            <div class="install-screen-content" aria-hidden="true">
+                <div class="fake-toggle-row">
+                    <span>Install unknown apps</span>
+                    <span class="fake-toggle" aria-hidden="true"></span>
+                </div>
+                <div class="fake-toggle-row">
+                    <span>Allow from this source</span>
+                    <span class="fake-toggle" aria-hidden="true"></span>
+                </div>
+            </div>
+            <p class="step-description">When Android asks, open Settings and turn on installs for Chrome (or the browser you used). This is required for beta APK files.</p>
+            <button class="btn" id="btn-step-2" type="button">Next</button>
+            <div class="mobile-nav">
+                <button class="mobile-back" id="back-btn-2" type="button" aria-label="Back">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor"/></svg>
+                </button>
+                <button class="mobile-next" id="mobile-btn-2" type="button">Next</button>
+            </div>
+        </div>
+
+        <div class="step-card install-step" id="step-3">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <h2 class="step-title">Open the downloaded APK</h2>
+            </div>
+            <div class="install-screen-content" aria-hidden="true">
+                <div class="install-screen-row is-highlight">
+                    <div class="install-screen-row__lead">
+                        <img src="img/appicon.png" alt="">
+                        <div>
+                            <strong id="install-apk-name">Toaster Beta.apk</strong>
+                        </div>
+                    </div>
+                    <span class="install-screen-chevron" aria-hidden="true"></span>
+                </div>
+            </div>
+            <p class="step-description">Pull down your notification shade or open Files → Downloads, then tap the Toaster beta APK you just downloaded.</p>
+            <button class="btn" id="btn-step-3" type="button">Next</button>
+            <div class="mobile-nav">
+                <button class="mobile-back" id="back-btn-3" type="button" aria-label="Back">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor"/></svg>
+                </button>
+                <button class="mobile-next" id="mobile-btn-3" type="button">Next</button>
+            </div>
+        </div>
+
+        <div class="step-card install-step" id="step-4">
+            <div class="platform-status">
+                <p class="platform-status-title">You can report a bug</p>
+                <svg class="platform-status-badge platform-status-badge--warn" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                <p class="platform-status-subtitle">Found an issue in the beta? <a href="./report.html" id="report-bug-link" rel="noopener">Report a Bug</a>.</p>
+            </div>
+            <button class="btn" id="btn-step-4" type="button">Next</button>
+            <div class="mobile-nav">
+                <button class="mobile-back" id="back-btn-4" type="button" aria-label="Back">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor"/></svg>
+                </button>
+                <button class="mobile-next" id="mobile-btn-4" type="button">Next</button>
+            </div>
+        </div>
+
+        <div class="step-card install-step cta-step" id="step-5">
+            <div class="platform-status">
+                <p class="platform-status-title">You're all set</p>
+                <svg class="platform-status-badge platform-status-badge--success" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div class="apk-history" id="apk-history" hidden>
+                <h3>Older beta builds</h3>
+                <div id="apk-history-list"></div>
+            </div>
+            <button class="btn" id="btn-done" type="button">Open Toaster</button>
+            <div class="mobile-nav">
+                <button class="mobile-back" id="back-btn-5" type="button" aria-label="Back">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor"/></svg>
+                </button>
+                <button class="mobile-next" id="mobile-btn-done" type="button">Open Toaster</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getBetaApkCdn() {
+            const params = new URLSearchParams(window.location.search);
+            const override = params.get('assets');
+            if (override && override !== 'local') return override.replace(/\/$/, '');
+            const host = window.location.hostname;
+            if (params.get('local') === '1' || override === 'local') {
+                return 'http://127.0.0.1:8787';
+            }
+            if (host === 'toaster.cloustan.org' && window.location.pathname.startsWith('/toaster-andriod-beta')) {
+                return 'https://assets.toaster.andriod.beta.cloustan.org';
+            }
+            if (
+                host === 'assets.toaster.andriod.beta.cloustan.org' ||
+                host.endsWith('.cloustan.workers.dev')
+            ) {
+                return window.location.origin;
+            }
+            if (host === '127.0.0.1' || host === 'localhost') {
+                return 'https://toaster-andriod-beta-releases.cloustan.workers.dev';
+            }
+            return 'https://assets.toaster.andriod.beta.cloustan.org';
+        }
+
+        const BETA_APK_CDN = getBetaApkCdn();
+
+        let currentStep = 1;
+        let latestRelease = null;
+        let allReleases = [];
+
+        const steps = {
+            1: document.getElementById('step-1'),
+            2: document.getElementById('step-2'),
+            3: document.getElementById('step-3'),
+            4: document.getElementById('step-4'),
+            5: document.getElementById('step-5')
+        };
+        const progressFill = document.getElementById('progress-fill');
+        const downloadBtn = document.getElementById('btn-download');
+        const mobileDownloadBtn = document.getElementById('mobile-btn-download');
+        const downloadStatus = document.getElementById('download-status');
+        const downloadMeta = document.getElementById('download-meta');
+        const apkHistory = document.getElementById('apk-history');
+        const apkHistoryList = document.getElementById('apk-history-list');
+        const installApkName = document.getElementById('install-apk-name');
+
+        function updateProgress() {
+            const progress = ((currentStep - 1) / 4) * 100;
+            progressFill.style.width = progress + '%';
+        }
+
+        function resetInstallToggles() {
+            var toggles = document.querySelectorAll('#step-2 .fake-toggle');
+            toggles.forEach(function(toggle) {
+                toggle.classList.remove('is-on');
+            });
+        }
+
+        function animateInstallToggles() {
+            var toggles = document.querySelectorAll('#step-2 .fake-toggle');
+            toggles.forEach(function(toggle, index) {
+                window.setTimeout(function() {
+                    toggle.classList.add('is-on');
+                }, 280 + index * 200);
+            });
+        }
+
+        function activateStep(stepNum) {
+            Object.values(steps).forEach(function(step) {
+                step.classList.remove('active', 'completed');
+            });
+            resetInstallToggles();
+            for (let i = 1; i < stepNum; i++) {
+                steps[i].classList.add('completed');
+            }
+            steps[stepNum].classList.add('active');
+            currentStep = stepNum;
+            if (stepNum === 2) {
+                animateInstallToggles();
+            }
+            updateProgress();
+            Object.values(steps).forEach(function(step) {
+                step.scrollTop = 0;
+            });
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        function triggerApkDownload() {
+            if (!latestRelease) return;
+            const url = apkUrl(latestRelease.file);
+            const filename = latestRelease.file.split('/').pop();
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.rel = 'noopener';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        function onDownloadClick() {
+            if (!latestRelease) return;
+            triggerApkDownload();
+            activateStep(2);
+        }
+
+        window.setTimeout(function() {
+            const heroStep = steps[1];
+            if (heroStep && heroStep.classList.contains('active')) {
+                heroStep.classList.add('intro-settle');
+            }
+        }, 180);
+
+        downloadBtn.addEventListener('click', onDownloadClick);
+        mobileDownloadBtn.addEventListener('click', onDownloadClick);
+        document.getElementById('btn-step-2').addEventListener('click', function() { activateStep(3); });
+        document.getElementById('btn-step-3').addEventListener('click', function() { activateStep(4); });
+        document.getElementById('btn-step-4').addEventListener('click', function() { activateStep(5); });
+        function openToasterApp() {
+            var pkg = 'com.toaster.cloustan';
+            var webFallback = new URL('index.html', window.location.href).href;
+            var deepLink = 'com.toaster.cloustan://open';
+            var isAndroid = /Android/i.test(navigator.userAgent || '');
+
+            if (isAndroid) {
+                var intentUrl =
+                    'intent://open#Intent;scheme=com.toaster.cloustan;package=' + pkg +
+                    ';action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;S.browser_fallback_url=' +
+                    encodeURIComponent(webFallback) + ';end';
+                window.location.href = intentUrl;
+                window.setTimeout(function() {
+                    window.location.href = deepLink;
+                }, 700);
+                return;
+            }
+
+            window.location.href = '/toaster-andriod-beta/';
+        }
+
+        document.getElementById('btn-done').addEventListener('click', openToasterApp);
+        document.getElementById('mobile-btn-2').addEventListener('click', function() { activateStep(3); });
+        document.getElementById('mobile-btn-3').addEventListener('click', function() { activateStep(4); });
+        document.getElementById('mobile-btn-4').addEventListener('click', function() { activateStep(5); });
+        document.getElementById('mobile-btn-done').addEventListener('click', openToasterApp);
+        document.getElementById('back-btn-2').addEventListener('click', function() { activateStep(1); });
+        document.getElementById('back-btn-3').addEventListener('click', function() { activateStep(2); });
+        document.getElementById('back-btn-4').addEventListener('click', function() { activateStep(3); });
+        document.getElementById('back-btn-5').addEventListener('click', function() { activateStep(4); });
+
+        updateProgress();
+
+        (function initReportBugLink() {
+            var reportLink = document.getElementById('report-bug-link');
+            if (!reportLink) return;
+            reportLink.href = new URL('report.html', window.location.href).href;
+            reportLink.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        })();
+
+        function apkUrl(filename) {
+            return BETA_APK_CDN.replace(/\/$/, '') + '/' + String(filename).replace(/^\//, '');
+        }
+
+        function extractBuildNumber(filename) {
+            const name = String(filename || '').split('/').pop();
+            const matches = name.match(/\d+/g);
+            if (!matches || !matches.length) return 0;
+            return Math.max.apply(null, matches.map(Number));
+        }
+
+        function normalizeRelease(entry) {
+            if (!entry) return null;
+            if (typeof entry === 'string') {
+                const file = entry.trim();
+                if (!/\.apk$/i.test(file)) return null;
+                return {
+                    file: file,
+                    build: extractBuildNumber(file),
+                    label: 'Build ' + extractBuildNumber(file),
+                    uploadedAt: ''
+                };
+            }
+            const file = entry.file || entry.name || entry.apk || entry.key || '';
+            if (!file || !/\.apk$/i.test(file)) return null;
+            const build = Number(entry.build || entry.buildNumber || entry.versionCode) || extractBuildNumber(file);
+            return {
+                file: file,
+                build: build,
+                label: entry.label || entry.versionName || ('Build ' + build),
+                uploadedAt: entry.uploadedAt || entry.date || entry.publishedAt || ''
+            };
+        }
+
+        function sortReleases(releases) {
+            return releases.slice().sort(function(a, b) {
+                if (b.build !== a.build) return b.build - a.build;
+                return String(b.file).localeCompare(String(a.file));
+            });
+        }
+
+        function parseManifestJson(data) {
+            const releases = [];
+            if (Array.isArray(data)) {
+                data.forEach(function(item) {
+                    const row = normalizeRelease(item);
+                    if (row) releases.push(row);
+                });
+            } else if (data && typeof data === 'object') {
+                const list = data.builds || data.releases || data.apks || data.files || [];
+                if (Array.isArray(list)) {
+                    list.forEach(function(item) {
+                        const row = normalizeRelease(item);
+                        if (row) releases.push(row);
+                    });
+                }
+                if (data.latest) {
+                    const latest = normalizeRelease(typeof data.latest === 'object' ? data.latest : { file: data.latest });
+                    if (latest && !releases.some(function(r) { return r.file === latest.file; })) {
+                        releases.push(latest);
+                    }
+                }
+            }
+            return sortReleases(releases);
+        }
+
+        function releasesFromManifest(data) {
+            const releases = parseManifestJson(data);
+            if (releases.length) return releases;
+            if (data && data.latest) {
+                const latest = normalizeRelease(typeof data.latest === 'object' ? data.latest : { file: data.latest });
+                return latest ? [latest] : [];
+            }
+            return [];
+        }
+
+        function parseS3ListXml(xmlText) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xmlText, 'application/xml');
+            if (doc.querySelector('parsererror')) return [];
+            const keys = Array.from(doc.querySelectorAll('Contents > Key, Key'));
+            const releases = [];
+            keys.forEach(function(node) {
+                const key = (node.textContent || '').trim();
+                const row = normalizeRelease(key);
+                if (row) releases.push(row);
+            });
+            return sortReleases(releases);
+        }
+
+        function parseHtmlListing(htmlText) {
+            const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+            const releases = [];
+            doc.querySelectorAll('a[href]').forEach(function(anchor) {
+                const href = anchor.getAttribute('href') || '';
+                const file = href.split('?')[0].split('#')[0];
+                const row = normalizeRelease(file);
+                if (row) releases.push(row);
+            });
+            const unique = [];
+            const seen = {};
+            releases.forEach(function(row) {
+                if (seen[row.file]) return;
+                seen[row.file] = true;
+                unique.push(row);
+            });
+            return sortReleases(unique);
+        }
+
+        async function fetchText(url) {
+            const response = await fetch(url, { method: 'GET', mode: 'cors', cache: 'no-store' });
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            return response.text();
+        }
+
+        async function fetchJson(url) {
+            const response = await fetch(url, { method: 'GET', mode: 'cors', cache: 'no-store' });
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            return response.json();
+        }
+
+        async function loadReleases() {
+            try {
+                const data = await fetchJson(BETA_APK_CDN + '/releases.json');
+                const releases = releasesFromManifest(data);
+                if (releases.length) return releases;
+            } catch (e) {}
+
+            return [];
+        }
+
+        function formatDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return String(value);
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function renderMeta(latest) {
+            downloadMeta.innerHTML = '';
+            if (!latest) return;
+            const chips = [
+                { text: 'Build ' + latest.build },
+                { text: latest.label }
+            ];
+            if (latest.uploadedAt) chips.push({ text: formatDate(latest.uploadedAt) });
+            chips.forEach(function(chip) {
+                const el = document.createElement('span');
+                el.className = 'download-chip';
+                el.textContent = chip.text;
+                downloadMeta.appendChild(el);
+            });
+        }
+
+        function renderHistory(releases) {
+            apkHistoryList.innerHTML = '';
+            const older = releases.slice(1);
+            if (!older.length) {
+                apkHistory.hidden = true;
+                return;
+            }
+            apkHistory.hidden = false;
+            older.forEach(function(release) {
+                const row = document.createElement('a');
+                row.className = 'apk-row';
+                row.href = apkUrl(release.file);
+                row.setAttribute('download', release.file.split('/').pop());
+                row.innerHTML = '<span>' + release.label + '</span><span>#' + release.build + '</span>';
+                apkHistoryList.appendChild(row);
+            });
+        }
+
+        function setReady(latest, releases) {
+            latestRelease = latest;
+            allReleases = releases;
+            renderMeta(latest);
+            const label = latest ? ('Download build ' + latest.build) : 'Download APK';
+            downloadBtn.disabled = false;
+            downloadBtn.textContent = label;
+            mobileDownloadBtn.disabled = false;
+            mobileDownloadBtn.textContent = label;
+            if (installApkName) {
+                installApkName.textContent = latest.file.split('/').pop();
+            }
+            downloadStatus.textContent = releases.length
+                ? ('Latest beta ready · ' + releases.length + ' build' + (releases.length === 1 ? '' : 's') + ' on file')
+                : 'No APK releases found yet.';
+            downloadStatus.classList.remove('error');
+            renderHistory(releases);
+        }
+
+        function setError(message) {
+            latestRelease = null;
+            downloadBtn.disabled = true;
+            mobileDownloadBtn.disabled = true;
+            downloadStatus.textContent = message;
+            downloadStatus.classList.add('error');
+            apkHistory.hidden = true;
+        }
+
+        if (!document.documentElement.classList.contains('platform-blocked')) {
+            loadReleases()
+                .then(function(releases) {
+                    if (!releases.length) {
+                        setError('Could not find any .apk files in the beta bucket. Upload a numbered APK or add releases.json to the bucket.');
+                        return;
+                    }
+                    setReady(releases[0], releases);
+                })
+                .catch(function() {
+                    setError('Could not load releases from the beta bucket. Check that ' + BETA_APK_CDN + ' is public and CORS allows this site.');
+                });
+        }
+    </script>
+</body>
+</html>
