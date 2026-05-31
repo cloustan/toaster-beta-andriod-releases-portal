@@ -1,22 +1,9 @@
-# Toaster Beta Android releases portal
+# Deprecated
 
-Static GitHub Pages site for downloading the Toaster Android beta APK and walking through install steps.
+This repository is **retired**. The Toaster Android beta portal is deployed via **Cloudflare Worker static assets**:
 
-**Live URL:** https://cloustan.github.io/toaster-beta-andriod-releases-portal/
+**https://assets.toaster.andriod.beta.cloustan.org/**
 
-APK files are served from the Cloudflare Worker + R2 bucket (`toaster-andriod-beta-releases`), not from this repo.
+Source and deploy commands live in the main [toaster](https://github.com/cloustan/toaster) repo (`toaster/cloudflare/toaster-andriod-beta-releases/`).
 
-## Update the site from the main Toaster repo
-
-```bash
-cd toaster
-npm run build:beta-apk-portal
-# copy .beta-apk-portal-dist/* into this repository, commit, and push main
-```
-
-Pages deploys automatically on push to `main` via `.github/workflows/deploy-pages.yml`.
-
-## GitHub Pages setup (one-time)
-
-1. Repo **Settings → Pages → Build and deployment**: Source = **GitHub Actions**.
-2. After the first successful workflow run, the site is available at the URL above.
+GitHub Pages has been disabled.
